@@ -183,4 +183,7 @@ if __name__ == "__main__":
     import sys
 
     output = query(*(sys.argv[1:]))
-    sys.stdout.buffer.write(output)
+    try:
+        sys.stdout.buffer.write(output)
+    except:
+        print(output)
