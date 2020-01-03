@@ -13,6 +13,8 @@ use Data::Dumper::Compact qw(ddc);
 use IO::Handle;
 use Plack::App::File;
 
+do './config_local.pl' if -r './config_local.pl';
+
 open $logfh, '>', '/dev/stdout';
 $logfh->autoflush(1);
 
