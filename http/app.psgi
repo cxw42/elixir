@@ -21,6 +21,9 @@ do './config_local.pl' if -r './config_local.pl';
 open $logfh, '>', '/dev/stdout';
 $logfh->autoflush(1);
 
+# the Python script requires this directory to exist
+do { mkdir $_ unless -d $_ } for '/tmp/elixir-errors';
+
 # Modified from CGI::Emulate::PSGI::handler()
 my $main_handler = sub {
     my $env = shift;
@@ -57,7 +60,7 @@ return sub {
 
     # Rewrite
     if($env->{REQUEST_URI} eq '/') {
-        $env->{REQUEST_URI} = $env->{PATH_INFO} = '/linux/latest/source';
+        $env->{REQUEST_URI} = $env->{PATH_INFO} = '/test/latest/source';
         $env->{SCRIPT_NAME} = '';
     }
 

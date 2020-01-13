@@ -146,23 +146,27 @@ def query(cmd, *args):
 
         symbol_definitions = []
         symbol_references = []
+        symbol_doccomments = []
 
         if not db.defs.exists(ident):
-            return symbol_definitions, symbol_references
+            return symbol_definitions, symbol_references, symbol_doccomments
 
         if not db.vers.exists(version):
-            return symbol_definitions, symbol_references
+            return symbol_definitions, symbol_references, symbol_doccomments
 
         vers = db.vers.get(version).iter()
         defs = db.defs.get(ident).iter(dummy=True)
         # FIXME: see why we can have a discrepancy between defs and refs
         if db.refs.exists(ident):
             refs = db.refs.get(ident).iter(dummy=True)
+            docs = db.docs.get(ident).iter(dummy=True)
         else:
             refs = data.RefList().iter(dummy=True)
+            docs = data.RefList().iter(dummy=True)
 
         id2, type, dline = next(defs)
         id3, rlines = next(refs)
+        # TODO resume here ==> ?? id4, doclines = next(docs)
 
         dBuf = []
         rBuf = []
@@ -184,7 +188,7 @@ def query(cmd, *args):
         for path, rlines in sorted(rBuf):
             symbol_references.append(SymbolInstance(path, rlines))
 
-        return symbol_definitions, symbol_references
+        return symbol_definitions, symbol_references, symbol_doccomments
 
     else:
         return('Unknown subcommand: ' + cmd + '\n')

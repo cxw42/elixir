@@ -23,6 +23,12 @@ if [ ! -d "$LXR_REPO_DIR" ]; then
     exit 1
 fi
 
+cur_dir=`pwd`
+script_dir=`dirname $0`
+cd `dirname "$0"`
+script_dir=`pwd`
+cd "$cur_dir"
+
 version_dir()
 {
     cat;
@@ -140,6 +146,25 @@ parse_defs()
     rmdir $tmp
 }
 
+parse_docs()
+{
+    #set -x
+    # Modified from parse_defs
+    tmp=`mktemp -d`
+    tmpfn=$$.`date -Iseconds`
+    full_path=$tmp/$opt2
+
+    git cat-file blob "$opt1" > "$full_path"
+    ctags -x --c-kinds=+p-m "$full_path" |
+    grep -av "^operator " |
+    awk '{print $1" "$2" "$3}' > "$tmp"/"$tmpfn"
+
+    "$script_dir/find-file-doc-comments.pl" "$tmp"/"$tmpfn"
+
+    rm -rf "$tmp"
+    #set +x
+}
+
 project=$(basename `dirname $LXR_REPO_DIR`)
 
 plugin=projects/$project.sh
@@ -206,6 +231,10 @@ case $cmd in
 
     parse-defs)
         parse_defs
+        ;;
+
+    parse-docs)
+        parse_docs
         ;;
 
     help)

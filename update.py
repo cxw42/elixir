@@ -122,6 +122,26 @@ def updateReferences(blobs):
             obj.append(blob, lines)
             db.refs.put(ident, obj)
 
+def updateDocComments(blobs):
+    for blob in blobs:
+        if (blob % 1000 == 0): progress('docs: ' + str(blob))
+        hash = db.hash.get(blob)
+        filename = db.file.get(blob)
+
+        if not lib.hasSupportedExt(filename): continue
+
+        lines = scriptLines('parse-docs', hash, filename)
+        for l in lines:
+            ident, line = l.split(b' ')
+
+            if db.docs.exists(ident):
+                obj = db.docs.get(ident)
+            else:
+                obj = data.RefList()
+
+            obj.append(blob, line)
+            db.docs.put(ident, obj)
+
 def progress(msg):
     print('{} - {} ({:.0%})'.format(project, msg, tagCount/numTags))
 
@@ -145,3 +165,4 @@ for tag in tagBuf:
     updateVersions(tag)
     updateDefinitions(newBlobs)
     updateReferences(newBlobs)
+    updateDocComments(newBlobs)

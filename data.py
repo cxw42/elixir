@@ -168,3 +168,4 @@ class DB:
         self.vers = BsdDB(dir + '/versions.db', ro, PathList)
         self.defs = BsdDB(dir + '/definitions.db', ro, DefList)
         self.refs = BsdDB(dir + '/references.db', ro, RefList)
+        self.docs = BsdDB(dir + '/doccomments.db', ro, RefList)
