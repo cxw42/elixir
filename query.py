@@ -159,9 +159,12 @@ def query(cmd, *args):
         # FIXME: see why we can have a discrepancy between defs and refs
         if db.refs.exists(ident):
             refs = db.refs.get(ident).iter(dummy=True)
-            docs = db.docs.get(ident).iter(dummy=True)
         else:
             refs = data.RefList().iter(dummy=True)
+
+        if db.docs.exists(ident):
+            docs = db.docs.get(ident).iter(dummy=True)
+        else:
             docs = data.RefList().iter(dummy=True)
 
         id2, type, dline = next(defs)
@@ -171,7 +174,7 @@ def query(cmd, *args):
         dBuf = []
         rBuf = []
 
-        for id1, path in vers:
+        for id1, path in vers:  # update.py inserts blobs sorted by hash.
             while id1 > id2:
                 id2, type, dline = next(defs)
             while id1 > id3:
