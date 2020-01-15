@@ -149,17 +149,12 @@ parse_defs()
 parse_docs()
 {
     #set -x
-    # Modified from parse_defs
     tmp=`mktemp -d`
     tmpfn=$$.`date -Iseconds`
     full_path=$tmp/$opt2
 
     git cat-file blob "$opt1" > "$full_path"
-    ctags -x --c-kinds=+p-m "$full_path" |
-    grep -av "^operator " |
-    awk '{print $1" "$2" "$3}' > "$tmp"/"$tmpfn"
-
-    "$script_dir/find-file-doc-comments.pl" "$tmp"/"$tmpfn"
+    "$script_dir/find-file-doc-comments.pl" "$full_path"
 
     rm -rf "$tmp"
     #set +x

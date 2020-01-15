@@ -167,9 +167,13 @@ class DB:
         ro = readonly
 
         self.vars = BsdDB(dir + '/variables.db', ro, lambda x: int(x.decode()) )
+            # Key-value store of basic information
         self.blob = BsdDB(dir + '/blobs.db', ro, lambda x: int(x.decode()) )
+            # Map hash to sequential integer serial number
         self.hash = BsdDB(dir + '/hashes.db', ro, lambda x: x )
+            # Map serial number back to hash
         self.file = BsdDB(dir + '/filenames.db', ro, lambda x: x.decode() )
+            # Map serial number to filename
         self.vers = BsdDB(dir + '/versions.db', ro, PathList)
         self.defs = BsdDB(dir + '/definitions.db', ro, DefList)
         self.refs = BsdDB(dir + '/references.db', ro, RefList)

@@ -85,7 +85,7 @@ sub main {
 
     # Report the doc comments for each function
     while(my ($funcname, $comment_lines) = each %doc_comments) {
-        print "$funcname doc $_\n" foreach @$comment_lines;
+        print "$funcname $_\n" foreach @$comment_lines;
     }
 
     return 0;
