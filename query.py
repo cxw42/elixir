@@ -178,23 +178,37 @@ def query(cmd, *args):
 
         dBuf = []
         rBuf = []
+        docBuf = []
 
         for file_idx, file_path in files_this_version:
+            # Advance defs, refs, and docs to the current file
             while def_idx < file_idx:
                 def_idx, def_type, def_line = next(defs_this_ident)
             while ref_idx < file_idx:
                 ref_idx, ref_lines = next(refs)
+            while doc_idx < file_idx:
+                doc_idx, doc_line = next(docs)
+
+            # Copy information about this identifier into dBuf, rBuf, and docBuf.
             while def_idx == file_idx:
                 dBuf.append((file_path, def_type, def_line))
                 def_idx, def_type, def_line = next(defs_this_ident)
+
             if ref_idx == file_idx:
                 rBuf.append((file_path, ref_lines))
+
+            if doc_idx == file_idx: # TODO should this be a `while`?
+                docBuf.append((file_path, doc_line))
+
 
         for path, type, dline in sorted(dBuf):
             symbol_definitions.append(SymbolInstance(path, dline, type))
 
         for path, rlines in sorted(rBuf):
             symbol_references.append(SymbolInstance(path, rlines))
+
+        for path, docline in sorted(docBuf):
+            symbol_doccomments.append(SymbolInstance(path, docline))
 
         return symbol_definitions, symbol_references, symbol_doccomments
 
