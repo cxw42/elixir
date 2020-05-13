@@ -69,6 +69,10 @@ As L</script_sh>, but for C<query.py>.
 
 As L</script_sh>, but for C<update.py>.
 
+=head2 web_py
+
+As L</script_sh>, but for C<web.py>.
+
 =head2 find_doc
 
 As L</script_sh>, but for C<find-file-doc-comments.pl>.
@@ -85,6 +89,9 @@ has query_py => (
 );
 has update_py => (
     default => sub { find_program('update.py') }
+);
+has web_py => (
+    default => sub { find_program(qw(http web.py)) }
 );
 has find_doc => (
     default => sub { find_program('find-file-doc-comments.pl') }
@@ -219,6 +226,36 @@ query.py:   @{[$self->query_py || '<unknown>']}
 find-file-doc-comments.pl: @{[$self->find_doc || '<unknown>']}
 EOT
 } #report()
+
+=head2 make_web_request
+
+Request a URL from L</web_py>.  Usage:
+
+    my $html = $tenv->make_web_request($url);
+        # Returns the HTML from stdout, or dies
+
+    my ($exit_status, $lrStdout, $lrStderr) = $tenv->make_web_request($url);
+        # Returns the shell exit status, stdout text, and stderr text.
+
+See L<TestEnvironment/run_program> for the details of the return values
+in the second case.
+
+=cut
+
+sub make_web_request {
+    my ($self, $url) = @_;
+
+    $self->update_env;  # just in case
+
+    local $ENV{REQUEST_URI} = $url;
+    my ($exit_status, $lrStdout, $lrStderr) = run_program($self->web_py);
+
+    if(!wantarray) {
+        return $lrStdout;
+    } else {
+        return ($exit_status, $lrStdout, $lrStderr);
+    }
+} #make_web_request()
 
 =head2 DESTROY
 
