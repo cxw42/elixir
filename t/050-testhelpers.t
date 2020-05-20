@@ -1,7 +1,8 @@
 #!/usr/bin/env perl
-# t/400-web.pl: Test web.py
+# t/50-testhelpers.t: test TestHelpers.pm
 #
 # Copyright (c) 2020 Christopher White, <cxwembedded@gmail.com>.
+# Copyright (c) 2020 D3 Engineering, LLC.
 #
 # Elixir is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,24 +26,32 @@ use lib $Bin;
 use Test::More;
 
 use TestEnvironment;
-use TestHelpers;
+use TestHelpers qw(:all);
 
-# ===========================================================================
-# Main
+# === line_mark_string =======================================================
 
-# This block is all that's required to set up for a test.
-my $tenv = TestEnvironment->new;
-$tenv->build_repo(sibling_abs_path('tree'));	# dies on error
-$tenv->build_db;
-$tenv->update_env;
+our ($fn, $refln, $ln);
 
-diag $tenv->report;
+sub level1 {
+    eval line_mark_string 1, '$fn = __FILE__; $ln = __LINE__';
+    ok !$@, 'level1 no errors';
+}
 
-http_request_ok 'index query', $tenv, '/testproj/latest/source',
-    [ qr{^Content-Type:\s*text/html}, qr{href="latest/source/issue102.c"},
-        qr{href="latest/source/arch"} ];
+$refln = __LINE__; level1;
+is $fn, __FILE__, 'level1 file';
+cmp_ok $ln, '==', $refln, 'level1 line';
 
-http_request_ok 'identifier query', $tenv, '/testproj/v5.4/ident/gsb_buffer',
-    [ qr{^Content-Type:\s*text/html}, qr{\bgsb_buffer\b} ];
+sub level2 {
+    level2_inner();
+}
+
+sub level2_inner {
+    eval line_mark_string 2, '$fn = __FILE__; $ln = __LINE__';
+    ok !$@, 'level2_inner no errors';
+}
+
+$refln = __LINE__; level2;
+is $fn, __FILE__, 'level2 file';
+cmp_ok $ln, '==', $refln, 'level2 line';
 
 done_testing;
