@@ -38,16 +38,15 @@ $tenv->update_env;
 
 print($tenv->report);
 
-my ($exit_status, $lrStdout, $lrStderr) = $tenv->make_web_request('/linux/v5.4/ident/gsb_buffer');
+my ($exit_status, $lrStdout, $lrStderr) = $tenv->make_web_request('/testproj/v5.4/ident/gsb_buffer');
 
 cmp_ok $exit_status, '==', 0, 'Program reported success';
 cmp_ok @$lrStderr, '==', 0, 'no stderr output';
 cmp_ok @$lrStdout, '>', 0, 'stdout output';
-my ($http_status) = map { /^Status: (\d+)/ ? ($1) : () } @$lrStdout;
-ok $http_status, 'Got HTTP status';
-is $http_status, '200', '200 OK';
+my ($content_type) = map { /^Content-Type: (.+)/ ? ($1) : () } @$lrStdout;
+ok $content_type, 'Got Content-Type';
+like $content_type, qr{text/html}, 'Content-Type is HTML';
 
-diag join "\n", @$lrStdout;
-
+#diag join "\n", @$lrStdout;
 
 done_testing;
