@@ -7,11 +7,10 @@ import falcon
 
 ELIXIR_DIR = os.path.dirname(__file__) + '/..'
 
-def build_query(env, project):
-    if 'LXR_DATA_DIR' not in os.environ or 'LXR_REPO_DIR' not in os.environ:
-        basedir = env['LXR_PROJ_DIR']
-        os.environ['LXR_DATA_DIR']= basedir + '/' + project + '/data'
-        os.environ['LXR_REPO_DIR'] = basedir + '/' + project + '/repo'
+def build_query(project):
+    basedir = os.environ['LXR_PROJ_DIR']
+    os.environ['LXR_DATA_DIR']= basedir + '/' + project + '/data'
+    os.environ['LXR_REPO_DIR'] = basedir + '/' + project + '/repo'
 
     import sys
     sys.path = [ ELIXIR_DIR ] + sys.path
@@ -20,7 +19,7 @@ def build_query(env, project):
 
 class IdentGetter:
     def on_get(self, req, resp, project, ident):
-        query = build_query(req.env, project)
+        query = build_query(project)
         if 'version' in req.params:
             version = req.params['version']
         else:
