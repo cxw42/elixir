@@ -30,7 +30,7 @@ use TestHelpers;
 # ===========================================================================
 # Main
 
-# This block is all that's required to set up for a test.
+# Set up for the tests
 my $tenv = TestEnvironment->new;
 $tenv->build_repo(sibling_abs_path('tree'));	# dies on error
 $tenv->build_db;
@@ -43,6 +43,10 @@ http_request_ok 'index query', $tenv, '/testproj/latest/source',
         qr{href="latest/source/arch"} ];
 
 http_request_ok 'identifier query', $tenv, '/testproj/v5.4/ident/gsb_buffer',
-    [ qr{^Content-Type:\s*text/html}, qr{\bgsb_buffer\b} ];
+    [ qr{^Content-Type:\s*text/html}, qr{\bgsb_buffer\b},
+        qr{"v5.4/source/drivers/i2c/i2c-core-acpi.c\#L23".+?
+            drivers/i2c/i2c-core-acpi.c.+?
+            line[ ]23.+?
+            \bstruct\b}x ];
 
 done_testing;
