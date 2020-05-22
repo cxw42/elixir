@@ -302,7 +302,7 @@ if mode == 'source':
 elif mode == 'ident':
     data['title'] = ident+' identifier - '+title_suffix
 
-    symbol_definitions, symbol_references, symbol_doccomments_UNUSED = query('ident', tag, ident)
+    symbol_definitions, symbol_references, symbol_doccomments = query('ident', tag, ident)
 
     print('<div class="lxrident">')
     if len(symbol_definitions):
@@ -313,6 +313,16 @@ elif mode == 'ident':
                 v=version, f=symbol_definition.path, n=symbol_definition.line, t=symbol_definition.type
             ))
         print('</ul>')
+
+        if len(symbol_doccomments):
+            print('<h2>Documented in '+str(len(symbol_doccomments))+' files:</h2>')
+            print('<ul>')
+            for symbol_doccomment in symbol_doccomments:
+                print('<li><a href="{v}/source/{f}#L{n}"><strong>{f}</strong>, line {n}</a></li>'.format(
+                    v=version, f=symbol_doccomment.path, n=symbol_doccomment.line
+                ))
+            print('</ul>')
+
 
         print('<h2>Referenced in '+str(len(symbol_references))+' files:</h2>')
         print('<ul>')
