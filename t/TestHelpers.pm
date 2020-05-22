@@ -389,16 +389,17 @@ sub _parseq {
     my $list;
     foreach(@_) {
         chomp;
-        if($_ eq 'Symbol Definitions:') {
+        if(/(?:^Symbol Definitions:$)|Defined in \d+/) {
             $list = 'def';
             next;
-        } elsif($_ eq 'Symbol References:') {
+        } elsif(/(?:^Symbol References:$)|Referenced in \d+/) {
             $list = 'ref';
             next;
-        } elsif($_ eq 'Documented in:') {
+        } elsif(/(?:^Documented in:$)|Documented in \d+/) {
             $list = 'doc';
             next;
         }
+        next unless $list;
 
         #diag "Adding `$_' to list $list";
         push @{$retval{$list}}, $_;
