@@ -84,8 +84,8 @@ sub sibling_abs_path {
 
 =head2 find_program
 
-Looks for a program in the parent directory of this script.
-Usage:
+Looks for a program in the parent directory of this script or a given
+subdir thereof.  Usage:
 
     $path = find_program(['subdir', ]'program name')
 
