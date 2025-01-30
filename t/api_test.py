@@ -17,22 +17,25 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Elixir.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
+from pathlib import Path
 
 import falcon
 from falcon import testing
 
-api_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..','api'))
-sys.path.insert(0, api_dir)
+toplevel = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(toplevel))
+print(sys.path)
 
-from api import create_ident_getter
+from elixir.api import ApiIdentGetterResource
 
 class APITest(testing.TestCase):
     def setUp(self):
         super(APITest, self).setUp()
 
-        self.app = create_ident_getter()
+        self.app = falcon.App()
+        handler = ApiIdentGetterResource()
+        self.app.add_route('/api/ident/testproj/{ident}', handler)
 
     def test_identifier_not_found(self):
         result = self.simulate_get('/ident/testproj/SOME_NONEXISTENT_IDENTIFIER', query_string="version=latest&family=C")
