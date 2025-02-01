@@ -17,6 +17,7 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Elixir.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 from pathlib import Path
 
@@ -27,52 +28,65 @@ toplevel = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(toplevel))
 print(sys.path)
 
-from elixir.api import ApiIdentGetterResource
-from elixir.web import RequestContextMiddleware, get_jinja_env
+from elixir.web import get_application
+
 
 class APITest(testing.TestCase):
     def setUp(self):
         super(APITest, self).setUp()
 
-        self.app = falcon.App(middleware=[
-            RequestContextMiddleware(get_jinja_env()),
-        ])
-        handler = ApiIdentGetterResource()
-        self.app.add_route('/api/ident/{project}/{ident}', handler)
+        self.app = get_application()
+        self._extras = {"LXR_PROJ_DIR": os.environ["LXR_PROJ_DIR"]}
 
     def test_identifier_not_found(self):
-        result = self.simulate_get('/api/ident/testproj/SOME_NONEXISTENT_IDENTIFIER', query_string="version=latest&family=C")
+        result = self.simulate_get(
+            "/api/ident/testproj/SOME_NONEXISTENT_IDENTIFIER",
+            query_string="version=latest&family=C",
+            extras=self._extras,
+        )
 
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(result.json, {'definitions': [], 'references':[], 'documentations': []})
+        self.assertEqual(
+            result.json, {"definitions": [], "references": [], "documentations": []}
+        )
 
     def test_missing_version(self):
         # A get request without a version query string
-        result = self.simulate_get('/api/ident/testproj/of_i2c_get_board_info', query_string="")
+        result = self.simulate_get(
+            "/api/ident/testproj/of_i2c_get_board_info",
+            query_string="",
+            extras=self._extras,
+        )
 
         self.assertEqual(result.status_code, 400)
 
-        required_response = falcon.HTTPMissingParam('version')
+        required_response = falcon.HTTPMissingParam("version")
         self.assertEqual(result.json["title"], required_response.title)
         self.assertEqual(result.json["description"], required_response.description)
 
     def test_existing_identifier(self):
-        result_for_specific_version = self.simulate_get('/ident/testproj/of_i2c_get_board_info', query_string="version=v5.4&family=C")
-        result_for_latest_version = self.simulate_get('/ident/testproj/of_i2c_get_board_info', query_string="version=latest&family=C")
+        result_for_specific_version = self.simulate_get(
+            "/ident/testproj/of_i2c_get_board_info",
+            query_string="version=v5.4&family=C",
+            extras=self._extras,
+        )
+        result_for_latest_version = self.simulate_get(
+            "/ident/testproj/of_i2c_get_board_info",
+            query_string="version=latest&family=C",
+            extras=self._extras,
+        )
 
         expected_json = {
-            'definitions':
-            [
-                {'path': 'include/linux/i2c.h', 'line': 941, 'type': 'prototype'},
-                {'path': 'drivers/i2c/i2c-core-of.c', 'line': 22, 'type': 'function'},
-                {'path': 'include/linux/i2c.h', 'line': 968, 'type': 'function'}
+            "definitions": [
+                {"path": "include/linux/i2c.h", "line": 941, "type": "prototype"},
+                {"path": "drivers/i2c/i2c-core-of.c", "line": 22, "type": "function"},
+                {"path": "include/linux/i2c.h", "line": 968, "type": "function"},
             ],
-            'references':
-                [
-                    {'path': 'drivers/i2c/i2c-core-of.c', 'line': '62,73', 'type': None}
-                ],
-                'documentations': []
-            }
+            "references": [
+                {"path": "drivers/i2c/i2c-core-of.c", "line": "62,73", "type": None}
+            ],
+            "documentations": [],
+        }
 
         self.assertEqual(result_for_specific_version.status_code, 200)
         self.assertEqual(result_for_latest_version.status_code, 200)

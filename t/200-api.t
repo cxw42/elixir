@@ -30,7 +30,13 @@ use TestHelpers;
 my $tenv = TestEnvironment->new;
 $tenv->build_repo(sibling_abs_path('tree'))->build_db->update_env;
 
+print "$ENV{LXR_DATA_DIR}\n";
+print "$ENV{LXR_REPO_DIR}\n";
 # Test the api using pytest. Prints the test results
-run_produces_ok('api pytest suite', ["pytest", "-v", "t"], [], MUST_SUCCEED, 1);
+run_produces_ok(
+    'api pytest suite',
+    [qw(pytest -vvvvv --log-level=DEBUG --log-cli-level=DEBUG -s -ra)],
+    [], MUST_SUCCEED, 1
+);
 
 done_testing;
