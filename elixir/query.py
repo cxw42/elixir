@@ -18,6 +18,13 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with Elixir.  If not, see <http://www.gnu.org/licenses/>.
 
+# PEP 366 boilerplate
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+if __name__ == "__main__" and __package__ is None:
+    __package__ = "elixir.query"
+
 from .lib import script, scriptLines, decode
 from . import lib
 from . import data
