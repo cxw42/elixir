@@ -60,18 +60,18 @@ class APITest(testing.TestCase):
 
         self.assertEqual(result.status_code, 400)
 
-        required_response = falcon.HTTPMissingParam("version")
+        required_response = falcon.HTTPInvalidParam("", "version")
         self.assertEqual(result.json["title"], required_response.title)
         self.assertEqual(result.json["description"], required_response.description)
 
     def test_existing_identifier(self):
         result_for_specific_version = self.simulate_get(
-            "/ident/testproj/of_i2c_get_board_info",
+            "/api/ident/testproj/of_i2c_get_board_info",
             query_string="version=v5.4&family=C",
             extras=self._extras,
         )
         result_for_latest_version = self.simulate_get(
-            "/ident/testproj/of_i2c_get_board_info",
+            "/api/ident/testproj/of_i2c_get_board_info",
             query_string="version=latest&family=C",
             extras=self._extras,
         )
