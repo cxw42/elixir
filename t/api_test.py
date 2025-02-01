@@ -28,24 +28,27 @@ sys.path.insert(0, str(toplevel))
 print(sys.path)
 
 from elixir.api import ApiIdentGetterResource
+from elixir.web import RequestContextMiddleware, get_jinja_env
 
 class APITest(testing.TestCase):
     def setUp(self):
         super(APITest, self).setUp()
 
-        self.app = falcon.App()
+        self.app = falcon.App(middleware=[
+            RequestContextMiddleware(get_jinja_env()),
+        ])
         handler = ApiIdentGetterResource()
-        self.app.add_route('/api/ident/testproj/{ident}', handler)
+        self.app.add_route('/api/ident/{project}/{ident}', handler)
 
     def test_identifier_not_found(self):
-        result = self.simulate_get('/ident/testproj/SOME_NONEXISTENT_IDENTIFIER', query_string="version=latest&family=C")
+        result = self.simulate_get('/api/ident/testproj/SOME_NONEXISTENT_IDENTIFIER', query_string="version=latest&family=C")
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.json, {'definitions': [], 'references':[], 'documentations': []})
 
     def test_missing_version(self):
         # A get request without a version query string
-        result = self.simulate_get('/ident/testproj/of_i2c_get_board_info', query_string="")
+        result = self.simulate_get('/api/ident/testproj/of_i2c_get_board_info', query_string="")
 
         self.assertEqual(result.status_code, 400)
 
